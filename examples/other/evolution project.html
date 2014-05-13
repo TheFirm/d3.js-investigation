@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 test</title>
+    <meta charset="utf-8">
+    <script src="/../../d3/d3.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        svg {
+            border-width: 1px;
+            border-style: solid;
+            width: 100%;
+        }
+
+        .new_citizen {
+            fill: lawngreen;
+        }
+
+        .citizen {
+            fill: darkorange;
+        }
+
+        .old_citizen {
+            fill: darkred;
+        }
+
+    </style>
+</head>
+<body>
+<svg></svg>
+<table cellspacing="10">
+    <tr>
+        <td>
+            Min neighbours to live <span id="liveLabel">2</span><br>
+            <input id="liveVal" type="range" min="0" max="9" value="2">
+        </td>
+        <td>
+            Min neighbours to born <span id="bornLabel">3</span><br>
+            <input id="bornVal" type="range" min="0" max="9" value="3">
+        </td>
+        <td>
+            Min neighbours to die <span id="dieLabel">4</span><br>
+            <input id="dieVal" type="range" min="0" max="9" value="4">
+        </td>
+        <td>
+            <input type="button" id="nextStepButton" value="GO">
+        </td>
+    </tr>
+</table>
+<br>
+<script type="text/javascript">
+
+var rules = {
+            minSiblingsToLive: 2,
+            minSiblingsToBorn: 3,
+            minSiblingsToDie: 4
+        },
+        cellsInEdge = 80,
+        cellSize = 6,
+        activeCitizens = [],
+        dataTable = [],
+        field = d3.select('svg'),
+        browserWindow = d3.select(window);
+
+for (var i = 0; i < cellsInEdge; i++) {
+    var row = [];
+    for (var j = 0; j < cellsInEdge; j++) {
+        row.push({
+            x: i + 1,
+            y: j + 1,
+            alive: false
+        })
+    }
+    dataTable.push(row);
+}
+
+// activeCitizens = [
+//    {x: 13, y: 11},
+//    {x: 13, y: 12},
+//    {x: 13, y: 13},
+//    {x: 13, y: 14},
+//    {x: 13, y: 15},
+//    {x: 13, y: 16},
+//    {x: 14, y: 12},
+//    {x: 15, y: 13},
+//    {x: 16, y: 14},
+//    {x: 17, y: 15},
+//    {x: 18, y: 16},
+//    {x: 14, y: 16},
+//    {x: 15, y: 16},
+//    {x: 16, y: 16},
+//    {x: 17, y: 16},
+//    {x: 18, y: 16}
+// ];
+
+activeCitizens = [
+    {x: 17, y: 17},
+    {x: 18, y: 18},
+    {x: 19, y: 19},
+    {x: 20, y: 20},
+    {x: 21, y: 21},
+    {x: 22, y: 22},
+    {x: 23, y: 23},
+    {x: 17, y: 23},
+    {x: 18, y: 22},
+    {x: 19, y: 21},
+    {x: 21, y: 19},
+    {x: 22, y: 18},
+    {x: 23, y: 17}
+];
+
+function isCorrectCell(x, y) {
+    return x >= 0 && x < cellsInEdge && y >= 0 && y < cellsInEdge;
+}
+
+function isNeigbour(x, y) {
+    return isCorrectCell(x, y) && dataTable[x][y].alive;
+}
+
+function loadData(citizens) {
+    for (var i = 0, max = citizens.length; i < max; i++) {
+        dataTable[citizens[i].x][citizens[i].y].alive = true;
+    }
+}
+
+function deleteData(citizens) {
+    for (var i = 0, max = citizens.length; i < max; i++) {
+        dataTable[citizens[i].x][citizens[i].y].alive = false;
+    }
+}
+
+function centerData(citizens) {
+    var maxX = -1,
+            maxY = -1,
+            minX = cellsInEdge + 1,
+            minY = cellsInEdge + 1;
+
+    for (var i = 0, max = citizens.length; i < max; i++) {
+        maxX = citizens[i].x > maxX ? citizens[i].x : maxX;
+        maxY = citizens[i].y > maxY ? citizens[i].y : maxY;
+        minX = citizens[i].x < minX ? citizens[i].x : minX;
+        minY = citizens[i].y < minY ? citizens[i].y : minY;
+    }
+
+    var leftMargin = minX - 1,
+            topMargin = minY - 1,
+            rightMargin = cellsInEdge - minX,
+            bottomMargin = cellsInEdge - minY,
+            xDiff = Math.round((( leftMargin + rightMargin) / 2 ) - leftMargin),
+            yDiff = Math.round((( topMargin + bottomMargin) / 2) - topMargin),
+            newCitizens = [];
+
+    for (var i = 0, max = citizens.length; i < max; i++) {
+        newCitizens.push({
+            x: citizens[i].x + xDiff,
+            y: citizens[i].y + yDiff
+        });
+    }
+
+    return newCitizens;
+}
+
+function processData() {
+    var aliveCitizens = [],
+            deadCitizens = [];
+
+    for (var i = 0; i < cellsInEdge; i++) {
+        for (var j = 0; j < cellsInEdge; j++) {
+            var siblingCells = [
+                        {x: i - 1, y: j - 1},
+                        {x: i, y: j - 1},
+                        {x: i + 1, y: j - 1},
+                        {x: i + 1, y: j},
+                        {x: i + 1, y: j + 1},
+                        {x: i, y: j + 1},
+                        {x: i - 1, y: j + 1},
+                        {x: i - 1, y: j}
+                    ],
+                    neighboursNumber = 0;
+
+            siblingCells.forEach(function (item) {
+                if (isNeigbour(item.x, item.y)) {
+                    neighboursNumber++;
+                }
+            });
+
+            if (neighboursNumber >= rules.minSiblingsToLive && neighboursNumber < rules.minSiblingsToDie && dataTable[i][j].alive) {
+                aliveCitizens.push({
+                    x: i,
+                    y: j
+                });
+            }
+
+            if (neighboursNumber >= rules.minSiblingsToBorn && !dataTable[i][j].alive) {
+                aliveCitizens.push({
+                    x: i,
+                    y: j
+                });
+            }
+
+
+            if (dataTable[i][j].alive && ( neighboursNumber < rules.minSiblingsToLive || neighboursNumber >= rules.minSiblingsToDie )) {
+                deadCitizens.push({
+                    x: i,
+                    y: j
+                });
+            }
+
+        }
+    }
+
+    loadData(aliveCitizens);
+    deleteData(deadCitizens);
+    return aliveCitizens;
+}
+
+function updateField(cellData) {
+
+    var circles = field.selectAll('circle')
+            .data(cellData, function (d) {
+                return d.x * 1000 + d.y;
+            });
+
+    circles.classed({
+        'citizen': true,
+        'new_citizen': false
+    });
+
+    circles.enter()
+            .append('circle')
+            .attr({
+                'r': 0,
+                'cx': function (d) {
+                    return 5 + (d.x + 1) * ( cellSize + 2 ) - cellSize / 2 - 1;
+                },
+                'cy': function (d) {
+                    return 5 + (d.y + 1) * ( cellSize + 2 ) - cellSize / 2 - 1;
+                }
+            })
+            .classed('new_citizen', true)
+            .transition()
+            .duration(1000)
+            .attr({
+                'r': cellSize / 2
+            });
+
+    circles.exit()
+            .classed({
+                'citizen': false,
+                'new_citizen': false,
+                'old_citizen': true
+            })
+            .transition()
+            .duration(1000)
+            .attr({
+                'r': 0
+            })
+            .remove();
+}
+
+function resizeView() {
+    field.style('height', this.innerHeight - 125);
+}
+
+d3.select('#nextStepButton')
+        .on('click', function () {
+            setInterval(function () {
+                var citizens = processData();
+                updateField(citizens);
+            }, 700);
+
+            var citizens = processData();
+            updateField(citizens);
+            d3.select(this)
+                    .style('display', 'none')
+                    .on('click', null);
+        });
+
+d3.select('#liveVal')
+        .on('change', function () {
+            var newVal = d3.select(this)
+                    .property('value');
+            rules.minSiblingsToLive = newVal
+            d3.select('#liveLabel')
+                    .text(newVal)
+        });
+
+d3.select('#bornVal')
+        .on('change', function () {
+            var newVal = d3.select(this)
+                    .property('value');
+            rules.minSiblingsToBorn = newVal
+            d3.select('#bornLabel')
+                    .text(newVal)
+        });
+
+d3.select('#dieVal')
+        .on('change', function () {
+            var newVal = d3.select(this)
+                    .property('value');
+            rules.minSiblingsToDie = newVal
+            d3.select('#dieLabel')
+                    .text(newVal)
+        });
+
+browserWindow.on('resize', resizeView);
+
+loadData(activeCitizens);
+updateField(activeCitizens);
+resizeView();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 test</title>
+    <meta charset="utf-8">
+    <script src="/../d3/d3.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        svg {
+            border-width: 1px;
+            border-style: solid;
+        }
+    </style>
+</head>
+<body>
+
+<svg></svg>
+<br>
+
+<script type="text/javascript">
+
+    var width = 600,
+            height = 600,
+            dataset = [10, 20, 40, 21, 40, 60],
+            pieLayout = d3.layout.pie(),
+            color = d3.scale.category20(),
+            svg = d3.select('svg')
+                    .style({
+                        width: width,
+                        height: height
+                    }),
+            arc = d3.svg.arc()
+                    .innerRadius(200)
+                    .outerRadius(width/2),
+            arcs = svg.selectAll('g')
+                    .data(pieLayout(dataset))
+                    .enter()
+                    .append('g')
+                    .attr('transform', 'translate(' + width/2 + ', ' + width/2 +')')
+                    .append('path')
+                    .attr({
+                        d: arc,
+                        fill: function(d, i) {
+                            return color(i);
+                        }
+                    }),
+            update = function() {
+                var sectors = svg.selectAll('g')
+                        .data(pieLayout(dataset));
+
+                sectors.enter()
+                        .append('g')
+                        .attr({
+                            transform: 'translate(' + width/2 + ', ' + width/2 +')',
+                            fill: function(d,i) {
+                                return 'lime';
+                            }
+                        })
+                        .append('path');
+
+                sectors.select('path')
+                        .transition()
+                        .duration(3000)
+                        .attr({
+                            d: arc,
+                            fill: function(d, i) {
+                                return color(i);
+                            }
+                        });
+            };
+
+    svg.on('click', function() {
+        for(var i= 0, max=dataset.length; i< max; i++) {
+            dataset[i] += Math.round(Math.random() * 100);
+        }
+        dataset.push(Math.round(Math.random() * 100));
+        update()
+    });
+
+</script>
+
+</body>
+</html>
