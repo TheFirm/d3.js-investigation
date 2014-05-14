@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    svg, p {
+        margin-left: 20px;
+    }
+
+    svg {
+        border-style: solid;
+        border-width: 2px;
+    }
+
+    svg .extent {
+        fill: lime;
+        stroke: black;
+        fill-opacity: 0.1;
+    }
+
+    svg circle {
+        fill: orange;
+        stroke-width: 2px;
+        stroke: red;
+    }
+
+    .selected circle  {
+        stroke: green;
+    }
+
+</style>
+<body>
+<p>Select an area. You can move and resize it. Click outside selected area to cancel selection.</p>
+<script src="/../../d3/d3.js"></script>
+<script>
+
+    var dataset = [],
+            datasetSize = 100,
+            margin = 20,
+            width = 800,
+            height = 400,
+            bigRadius = 20,
+            smallRadius = 10,
+
+            svg = d3.select('body')
+                    .append('svg')
+                    .style({
+                        width: width,
+                        height: height
+                    }),
+
+            xScale = d3.scale.linear()
+                    .domain([0, 100])
+                    .range([width - margin, margin]),
+
+            yScale = d3.scale.linear()
+                    .domain([0, 100])
+                    .range([height - margin, margin]),
+
+            highlight = function (selectedArea) {
+                svg.selectAll('circle')
+                        .transition()
+                        .attr({
+                            r: function (d) {
+                                var intervalMatchOnX = selectedArea[0][0] < d.cx &&
+                                                selectedArea[1][0] > d.cx,
+
+                                        intervalMatchOnY = selectedArea[0][1] < d.cy &&
+                                                selectedArea[1][1] > d.cy;
+
+                                return intervalMatchOnX && intervalMatchOnY ? bigRadius : smallRadius;
+                            }
+                        })
+            },
+
+            brushStart = function () {
+                svg.classed('selected',true);
+            },
+
+            brushChange = function () {
+                if(!d3.event.target.empty()) { // won't invoke heavy method if area is empty
+                    highlight(d3.event.target.extent());
+                } else {
+				highlight([-1,-1,-1,-1]);	
+			}
+            },
+
+            brushEnd = function () {
+                svg.classed('selected',false);
+            },
+
+            brush = d3.svg.brush()
+                    .x(xScale)
+                    .y(yScale)
+                    .on("brushstart", brushStart)
+                    .on("brush", brushChange)
+                    .on("brushend", brushEnd);
+
+    for(var i=0; i<datasetSize; i++) {
+        dataset.push({
+            cx: Math.round(Math.random() * 100),
+            cy: Math.round(Math.random() * 100)
+        });
+    }
+
+    svg.selectAll('circle')
+            .data(dataset)
+            .enter()
+            .append('circle')
+            .attr({
+                cx: function(d) {
+                    return xScale(d.cx);
+                },
+
+                cy: function(d) {
+                    return yScale(d.cy);
+                },
+
+                r: smallRadius
+            });
+
+    svg.call(brush);
+
+</script>
+</body>
