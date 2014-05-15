@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    svg {
+        margin-left: 20px;
+        border-style: solid;
+        border-width: 2px;
+    }
+
+    .line {
+        fill: none;
+        stroke: lime;
+        stroke-width: 3px;
+    }
+
+    circle {
+        r: 4px;
+        fill: red;
+    }
+
+</style>
+<body>
+<script src="/../../d3/d3.js"></script>
+<script>
+
+    var dataset = [],
+            datasetSize = 20,
+            width = 600,
+            height = 400,
+            margin = 20,
+
+            scaleX = d3.scale.linear()
+                    .domain([-2 * Math.PI, 2 * Math.PI])
+                    .range([margin, width - margin]),
+
+            scaleY = d3.scale.linear()
+                    .domain([-1,1])
+                    .range([height - margin, margin]),
+
+            lineSVG = d3.select('body')
+                    .append('svg')
+                    .attr({
+                        width: width,
+                        height: height
+                    }),
+
+            line = d3.svg.line()
+                    .x(function(d) {
+                        return scaleX(d);
+                    })
+                    .y(function(d) {
+                        return scaleY(Math.sin(d));
+                    }),
+
+            path = lineSVG.append("g")
+                    .append("path")
+                    .datum(dataset)
+                    .attr({
+                        class: 'line',
+                        d: line
+                    }),
+
+            generateData = function() {
+                dataset = [];
+                for(var i=0; i< datasetSize; i++) {
+                    dataset.push(2 * Math.PI - ( 4 * Math.random() * Math.PI ));
+                }
+                dataset.sort(function(a, b){return a-b});
+            },
+
+            update = function() {
+                generateData();
+                path.datum(dataset)
+                        .transition()
+                        .duration(2000)
+                        .attr('d', line);
+
+                points = lineSVG.selectAll('circle')
+                        .data(dataset);
+
+                points.transition()
+                        .attr({
+                            cx: function(d) {
+                                return scaleX(d);
+                            },
+
+                            cy: function(d) {
+                                return scaleY(Math.sin(d));
+                            }
+                        });
+
+                points.enter()
+                        .append('circle')
+                        .attr({
+                            cx: function(d) {
+                                return scaleX(d);
+                            },
+                            r: 4,
+                            cy: function(d) {
+                                return scaleY(Math.sin(d));
+                            }
+                        });
+            };
+
+    lineSVG.on('click', update);
+
+    update();
+
+</script>
+</body>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 test</title>
+    <meta charset="utf-8">
+    <style>
+        svg {
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        circle {
+            fill: lime;
+        }
+
+    </style>
+</head>
+<body>
+<p>Enter coordinates pair {x;y} to add circle. You can also drag circles</p>
+<svg></svg>
+<br>
+<input id='inp' type='text' placeholder="x y">
+<script src="/../../d3/d3.js"></script>
+<script type="text/javascript">
+
+    var width = 700,
+            height = 400,
+            mx = 100,
+            my = 100,
+            points = [
+                { x: 50, y: 50},
+                { x: 60, y: 30},
+                { x: 20, y: 80},
+                { x: 30, y: 55},
+                { x: 80, y: 60}
+            ],
+
+            svg = d3.select('svg')
+                    .style({
+                        width: width + 'px',
+                        height: height + 'px'
+                    }),
+
+            scaleX = d3.scale.linear()
+                    .domain([0, 100])
+                    .range([40, width - 20]),
+
+            scaleY = d3.scale.linear()
+                    .domain([0, 100])
+                    .range([height - 40, 20]),
+
+            axisY = d3.svg.axis()
+                    .scale(scaleY)
+                    .orient('left'),
+
+            axisX = d3.svg.axis()
+                    .scale(scaleX)
+                    .orient('bottom'),
+
+            update = function () {
+                var circles = svg.selectAll('circle')
+                                .data(points, function (d) {
+                                    return d.x * 100 + d.y;
+                                }),
+                        calculatedRadius = Math.round(Math.min(15 * 100 / my, 15 * 100 / mx)),
+                        newCircleRadius = calculatedRadius < 4 ? 4 : calculatedRadius;
+
+                circles.transition()
+                        .attr({
+                            cx: function (d) {
+                                return scaleX(d.x);
+                            },
+
+                            cy: function (d) {
+                                return scaleY(d.y);
+                            },
+
+                            r: newCircleRadius
+                        });
+
+                circles.enter()
+                        .append('circle')
+                        .attr({
+                            cx: function (d, i) {
+                                return scaleX(d.x);
+                            },
+
+                            cy: function (d) {
+                                return scaleY(d.y);
+                            },
+
+                            r: 0
+                        })
+                        .call(dragBehavior)
+                        .transition()
+                        .attr('r', newCircleRadius);
+
+                d3.select('#xa')
+                        .transition()
+                        .call(axisX);
+                d3.select('#ya')
+                        .transition()
+                        .call(axisY);
+            },
+
+            dragElement = function (d) {
+                var _this = d3.select(this),
+                        x = +(_this.attr('cx')),
+                        y = +(_this.attr('cy')),
+                        newX = x + d3.event.dx,
+                        newY = y + d3.event.dy;
+
+                _this.attr({
+                    cx: newX,
+                    cy: newY
+                });
+
+                d.x = scaleX.invert(newX);
+                d.y = scaleY.invert(newY);
+            },
+
+            dragBehavior = d3.behavior.drag()
+                    .on('drag', dragElement);
+
+
+    d3.select('#inp')
+            .on('change', function () {
+                var values = d3.select(this)
+                                .property('value')
+                                .split(' '),
+                        x = +values[0],
+                        y = +values[1];
+
+                if (x > mx) {
+                    scaleX.domain([0, x]);
+                    mx = x;
+                }
+
+                if (y > my) {
+                    scaleY.domain([0, y]);
+                    my = y;
+                }
+
+                points.push({
+                    x: x,
+                    y: y
+                });
+
+                d3.select(this)
+                        .property('value', '');
+
+                update();
+            });
+
+    svg.append('g')
+            .attr({
+                id: 'ya',
+                transform: 'translate(40,0)'
+            })
+            .style({
+                fill: 'none',
+                stroke: 'black'
+            })
+            .call(axisY);
+
+    svg.append('g')
+            .attr({
+                id: 'xa',
+                transform: 'translate(0,' + (height - 30) + ')'
+            })
+            .style({
+                fill: 'none',
+                stroke: 'black'
+            })
+            .call(axisX);
+
+    update();
+
+</script>
+
+</body>
+</html>

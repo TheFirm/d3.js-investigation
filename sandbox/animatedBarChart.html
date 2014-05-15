@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 test</title>
+    <meta charset="utf-8">
+    <script src="d3/d3.js"></script>
+    <style>
+        svg {
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        svg rect:hover {
+            fill: orange;
+            -moz-transition: all 0.2s;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: blue;
+        }
+
+    </style>
+</head>
+<body>
+<script type="text/javascript">
+    var dataset = [],
+            size = 25,
+            chartHeight = 420,
+            chartWidth = 600,
+            chartLeftMargin = 150,
+            chartTopMargin = 20,
+            barMargin = 3,
+            barWidth = Math.round((chartWidth - (size -1) * barMargin) / size),
+            scaleT = d3.scale.linear()
+                    .domain([400,0])
+                    .range([0,400]),
+            svg = d3.select('body')
+                    .append('svg')
+                    .attr({
+                        'width': '900px',
+                        'height': '500px'
+                    }),
+            xAxis = d3.svg.axis()
+                    .scale(scaleT)
+                    .orient('left')
+                    .ticks(10);
+
+    for(var i = 0; i < size; i += 1) {
+        dataset[i] = Math.floor(100 + Math.random() * 300);
+    }
+    dataset.sort();
+
+    svg.selectAll('rect')
+            .data(dataset)
+            .enter()
+            .append('rect')
+            .attr({
+                'y': function(d){
+                    return chartTopMargin + chartHeight - d;
+                },
+                'x': function(d,i) {
+                       return chartLeftMargin + i * (barWidth + 3);
+                },
+                'width': barWidth,
+                'height': function(d) {
+                    return d;
+                },
+                'fill': function(d) {
+                    return "rgb(0,0," + (50 + Math.round(d * 205 / 400)) + ")";
+                }
+            });
+    svg.selectAll('text')
+            .data(dataset)
+            .enter()
+            .append('text')
+            .text(function(d) {
+                return d;
+            })
+            .style({
+                'font-weight': 'bold',
+                'font-size': '10px'
+            })
+            .attr({
+                'fill':'white',
+                'y': function(d) {
+                    return chartTopMargin + Math.round(chartHeight - d * 0.5);
+                },
+                'x': function(d,i) {
+                    return chartLeftMargin + i * (barWidth + 3) + Math.round(barWidth / 2) - 8;
+                }
+            });
+    svg.append('g').attr({
+        'class': 'axis',
+        'transform': 'translate(' + (chartLeftMargin - 10) + ','+ (chartTopMargin + 20) +')'
+    }).call(xAxis);
+
+    var allUpdate = function(){
+        for(var i = 0; i < size; i += 1) {
+            dataset[i] = Math.floor(100 + Math.random() * 300);
+        }
+        dataset.sort();
+        svg.selectAll('rect')
+                .data(dataset)
+                .transition()
+                .attr({
+                    'y': function(d){
+                        return chartTopMargin + chartHeight - d;
+                    },
+                    'height': function(d) {
+                        return d;
+                    },
+                    'fill': function(d) {
+                        return "rgb(0," + (50 + Math.round(d * 205 / 400)) + ",0)";
+                    }
+                });
+        svg.selectAll('text')
+                .data(dataset)
+                .transition()
+                .text(function(d) {
+                    return d;
+                })
+                .attr({
+                    'y': function(d) {
+                        return chartTopMargin + Math.round(chartHeight - d * 0.5);
+                    }
+                });
+    }
+
+    d3.select('svg').on('click',function(){setInterval(allUpdate,100);});
+
+</script>
+</body>
+</html>

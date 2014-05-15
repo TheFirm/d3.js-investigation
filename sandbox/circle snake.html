@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 test</title>
+    <meta charset="utf-8">
+    <script src="d3/d3.js"></script>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 500px;
+            border-width: 1px;
+            border-style: solid;
+        }
+    </style>
+</head>
+<body>
+
+<svg></svg>
+<br>
+
+<script type="text/javascript">
+
+    var events = [{x:0, y:0}],
+            svg = d3.select('svg'),
+            circlesNumber = 75;
+
+    svg.on('mousemove', function () {
+
+        var     size = events.length,
+                x1 = d3.event.x || d3.event.pageX,
+                y1 = d3.event.y || d3.event.pageY,
+                x2 = events[size-1].x || events[size-1].pageX || 0,
+                y2 = events[size-1].y || events[size-1].pageY || 0,
+                distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+
+        if(distance < 30) return;
+
+        events.push(d3.event);
+
+        if (events.length > circlesNumber) {
+            events.shift();
+        }
+
+        var elems = d3.select(this)
+                .selectAll('circle')
+                .data(events, function (e) {
+                    return e.timeStamp;
+                });
+
+        elems.attr({
+            fill: function(d,i) {
+                return "rgb(0," + (55 + Math.round(i / circlesNumber * 200)) +",0";
+            },
+
+            r: function(d,i) {
+                return 5 + Math.round(i / circlesNumber * 20);
+            }
+        })
+
+        elems.enter()
+                .append('circle')
+                .attr({
+                    cx: function (d) {
+                        return d.x || d.pageX;
+                    },
+
+                    cy: function (d) {
+                        return d.y || d.pageY;
+                    },
+
+                    fill: 'lime',
+                    r: 25
+                })
+
+        elems.exit()
+                .remove();
+
+    })
+
+
+</script>
+
+</body>
+</html>
