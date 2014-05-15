@@ -52,11 +52,7 @@
                     .y(function(d) {
                         return scaleY(Math.sin(d));
                     })
-                    // try all interpolations
                     .interpolate('linear');
-                    //.interpolate('basis');
-                    //.interpolate('cardinal');
-                    //.interpolate('step');
 
             path = lineSVG.append("g")
                     .append("path")
