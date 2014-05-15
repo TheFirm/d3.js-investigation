@@ -112,6 +112,59 @@
 
     lineSVG.on('click', update);
 
+    d3.select('body').append('br');
+    d3.select('body').append('input')
+            .attr({
+                type: 'button',
+                value: 'linear interpolation'
+            })
+            .on('click', function(){
+                line.interpolate('linear');
+                path.datum(dataset)
+                        .transition()
+                        .duration(1000)
+                        .attr('d', line);
+            });
+
+    d3.select('body').append('input')
+            .attr({
+                type: 'button',
+                value: 'basis interpolation'
+            })
+            .on('click', function(){
+                line.interpolate('basis');
+                path.datum(dataset)
+                        .transition()
+                        .duration(1000)
+                        .attr('d', line);
+            });
+
+    d3.select('body').append('input')
+            .attr({
+                type: 'button',
+                value: 'cardinal interpolation'
+            })
+            .on('click', function(){
+                line.interpolate('cardinal');
+                path.datum(dataset)
+                        .transition()
+                        .duration(1000)
+                        .attr('d', line);
+            });
+
+    d3.select('body').append('input')
+            .attr({
+                type: 'button',
+                value: 'step interpolation'
+            })
+            .on('click', function(){
+                line.interpolate('step');
+                path.datum(dataset)
+                        .transition()
+                        .duration(1000)
+                        .attr('d', line);
+            });
+
     update();
 
 </script>
