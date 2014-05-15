@@ -25,7 +25,7 @@
 <script>
 
     var dataset = [],
-            datasetSize = 20,
+            datasetSize = 10,
             width = 600,
             height = 400,
             margin = 20,
@@ -51,7 +51,12 @@
                     })
                     .y(function(d) {
                         return scaleY(Math.sin(d));
-                    }),
+                    })
+                    // try all interpolations
+                    .interpolate('linear');
+                    //.interpolate('basis');
+                    //.interpolate('cardinal');
+                    //.interpolate('step');
 
             path = lineSVG.append("g")
                     .append("path")
@@ -73,7 +78,7 @@
                 generateData();
                 path.datum(dataset)
                         .transition()
-                        .duration(2000)
+                        .duration(1000)
                         .attr('d', line);
 
                 points = lineSVG.selectAll('circle')
@@ -96,10 +101,12 @@
                             cx: function(d) {
                                 return scaleX(d);
                             },
-                            r: 4,
+
                             cy: function(d) {
                                 return scaleY(Math.sin(d));
-                            }
+                            },
+
+                            r: 6
                         });
             };
 
