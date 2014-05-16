@@ -1,12 +1,14 @@
+//TODO: implement parent auto fit
 APP.directive('pieChart', function () {
     return {
         restrict: 'EAC',
         scope: {
-            data: '='
+            data: '=',
+            lF: '&labelFactory'
         },
 
         link: function ($scope, $element, $attributes) {
-            console.log('pieChart directive: link function inoked');
+            console.log('pieChart directive: link function invoked');
             if (!$scope.data) {
                 console.log('pieChart directive: link function aborted. incorrect arguments ');
                 return;
@@ -17,18 +19,20 @@ APP.directive('pieChart', function () {
                 minDimension = d3.min([_width, _height]),
                 _margin = $attributes.margin || 10,
                 maxRadius = Math.round(minDimension / 2 - _margin),
-                innerRadius = $attributes.inner * maxRadius / 100 || 0,
-                outerRadius = $attributes.outer * maxRadius / 100 || maxRadius,
+                innerRadius = $attributes.innerRadius * maxRadius / 100 || 0,
+                outerRadius = $attributes.outerRadius * maxRadius / 100 || maxRadius,
                 changeDuration = $attributes.duration || 0,
+                hideLabels = !!($attributes.labelHide),
                 fontSize = $attributes.fontSize || null,
-                fontColor = $attributes.fontColor || 'black';
+                fontColor = $attributes.fontColor || 'black',
+                labelFactory = ($attributes.labelFactory && $scope.lF) || null,
 
-                svg = d3.select($element[0])
-                    .append('svg')
-                    .style({
-                        width: _width,
-                        height: _height
-                    }),
+            svg = d3.select($element[0])
+                .append('svg')
+                .style({
+                    width: _width,
+                    height: _height
+                }),
 
                 rScale = d3.scale.linear()
                     .domain([
@@ -66,16 +70,21 @@ APP.directive('pieChart', function () {
                             }
                         });
 
-                    newGroups.append("text")
-                        .attr("transform", function (d) {
-                            return "translate(" + arc.centroid(d) + ")";
-                        })
-                        .attr("text-anchor", "middle")
-                        .style('fill', fontColor)
-                        .text(function (d) {
-                            return d.value;
-                        });
-
+                    if (!hideLabels) {
+                        newGroups.append("text")
+                            .attr("transform", function (d) {
+                                return "translate(" + arc.centroid(d) + ")";
+                            })
+                            .attr("text-anchor", "middle")
+                            .style('fill', fontColor)
+                            .text(function (d, i) {
+                                if (labelFactory && typeof labelFactory === 'function') {
+                                    return labelFactory({value: d.value, index: i});
+                                } else {
+                                    return d.value;
+                                }
+                            });
+                    }
 
                     sectors.select('path')
                         .transition()
@@ -84,15 +93,24 @@ APP.directive('pieChart', function () {
                             d: arc
                         });
 
-                    sectors.select('text')
-                        .transition()
-                        .duration(changeDuration)
-                        .attr("transform", function (d) {
-                            return "translate(" + arc.centroid(d) + ")";
-                        });
+                    if (!hideLabels) {
+                        sectors.select('text')
+                            .transition()
+                            .duration(changeDuration)
+                            .attr("transform", function (d) {
+                                return "translate(" + arc.centroid(d) + ")";
+                            })
+                            .text(function (d, i) {
+                                if (labelFactory && typeof labelFactory === 'function') {
+                                    return labelFactory({value: d.value, index: i});
+                                } else {
+                                    return d.value;
+                                }
+                            });
+                    }
                 };
 
-            if(fontSize) {
+            if (fontSize) {
                 svg.style({
                     'font-size': fontSize
                 })
@@ -101,6 +119,7 @@ APP.directive('pieChart', function () {
             $scope.$watchCollection('data', function (d) {
                 update(d);
             });
+
         }
     }
 });
