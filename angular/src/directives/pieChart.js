@@ -1,6 +1,6 @@
 APP.directive('pieChart', function () {
     return {
-        restrict: 'EA',
+        restrict: 'EAC',
         scope: {
             data: '='
         },
@@ -12,13 +12,16 @@ APP.directive('pieChart', function () {
                 return;
             }
 
-            var _width = $attributes.width || 500,
-                _height = $attributes.height || 400,
+            var _width = $attributes.width || 200,
+                _height = $attributes.height || 200,
                 minDimension = d3.min([_width, _height]),
                 _margin = $attributes.margin || 10,
-                innerRadius = $attributes.inner || 0,
-                outerRadius = $attributes.outer || minDimension / 2 - _margin,
+                maxRadius = Math.round(minDimension / 2 - _margin),
+                innerRadius = $attributes.inner * maxRadius / 100 || 0,
+                outerRadius = $attributes.outer * maxRadius / 100 || maxRadius,
                 changeDuration = $attributes.duration || 0,
+                fontSize = $attributes.fontSize || null,
+                fontColor = $attributes.fontColor || 'black';
 
                 svg = d3.select($element[0])
                     .append('svg')
@@ -50,28 +53,52 @@ APP.directive('pieChart', function () {
                     var sectors = svg.selectAll('g')
                         .data(pieLayout(_data));
 
-                    sectors.enter()
+                    var newGroups = sectors.enter()
                         .append('g')
                         .attr({
                             transform: 'translate(' + _width / 2 + ', ' + _height / 2 + ')',
+                        });
+
+                    newGroups.append('path')
+                        .attr({
                             fill: function (d, i) {
                                 return colorScale(i);
                             }
+                        });
+
+                    newGroups.append("text")
+                        .attr("transform", function (d) {
+                            return "translate(" + arc.centroid(d) + ")";
                         })
-                        .append('path');
+                        .attr("text-anchor", "middle")
+                        .style('fill', fontColor)
+                        .text(function (d) {
+                            return d.value;
+                        });
+
 
                     sectors.select('path')
                         .transition()
                         .duration(changeDuration)
                         .attr({
-                            d: arc,
-                            fill: function (d, i) {
-                                return colorScale(i);
-                            }
+                            d: arc
+                        });
+
+                    sectors.select('text')
+                        .transition()
+                        .duration(changeDuration)
+                        .attr("transform", function (d) {
+                            return "translate(" + arc.centroid(d) + ")";
                         });
                 };
 
-            $scope.$watchCollection('data', function(d) {
+            if(fontSize) {
+                svg.style({
+                    'font-size': fontSize
+                })
+            };
+
+            $scope.$watchCollection('data', function (d) {
                 update(d);
             });
         }

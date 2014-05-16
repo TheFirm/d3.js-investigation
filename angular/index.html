@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html  ng-app="test_d3">
+<html ng-app="test_d3">
 <head>
     <title>D3 + Angular</title>
     <meta charset="utf-8" lang="ua">
-    <link href='styles/main.css'  rel="stylesheet" type="text/css"/>
+    <link href='styles/main.css' rel="stylesheet" type="text/css"/>
 </head>
 
 <body ng-controller="HomeController">
+<a ng-href="#/">Home</a>
 
+<div class="content" ng-view>
 
-<div id="directiveContainer">
-    <pie-chart data="somedata"></pie-chart>
 </div>
-<input type="button" value="Add" ng-click="addData()">
 
 <script src="src/d3.js"></script>
 <script src="src/angular.js"></script>
+<script src="src/angular-route.min.js"></script>
 <script src="src/app.js"></script>
 <script src="src/controllers/HomeController.js"></script>
 <script src="src/factories/fakeData.js"></script>
