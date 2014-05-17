@@ -25,24 +25,16 @@ APP.directive('pieChart', function () {
                 hideLabels = !!($attributes.labelHide),
                 fontSize = $attributes.fontSize || null,
                 fontColor = $attributes.fontColor || 'black',
+                strokeSize = $attributes.strokeSize || '0',
+                strokeColor = $attributes.strokeColor || 'black',
                 labelFactory = ($attributes.labelFactory && $scope.lF) || null,
 
-            svg = d3.select($element[0])
-                .append('svg')
-                .style({
-                    width: _width,
-                    height: _height
-                }),
-
-                rScale = d3.scale.linear()
-                    .domain([
-                        d3.min($scope.data), // підлаштовуємо domain під фактично заданий в ngModel масив
-                        d3.max($scope.data)
-                    ])
-                    .range([
-                        _margin ,
-                        minDimension - _margin // радіус має бути менший за висоту і ширину області
-                    ]),
+                svg = d3.select($element[0])
+                    .append('svg')
+                    .attr({
+                        width: _width,
+                        height: _height
+                    }),
 
                 colorScale = d3.scale.category20(),
 
@@ -55,27 +47,35 @@ APP.directive('pieChart', function () {
                 update = function (_data) {
                     console.log('pieChart directive: updating chart');
                     var sectors = svg.selectAll('g')
-                        .data(pieLayout(_data));
+                            .data(pieLayout(_data)), //binding data to existing sectors
 
-                    var newGroups = sectors.enter()
-                        .append('g')
-                        .attr({
-                            transform: 'translate(' + _width / 2 + ', ' + _height / 2 + ')',
-                        });
+                        newSectors = sectors.enter() // creating new sectors
+                            .append('g')
+                            .attr({
+                                transform: 'translate(' + _width / 2 + ', ' + _height / 2 + ')'
+                            });
 
-                    newGroups.append('path')
+                    sectors.exit() // deleting empty sectors
+                        .remove();
+
+                    newSectors.append('path')
                         .attr({
+                            d: arc,
                             fill: function (d, i) {
                                 return colorScale(i);
-                            }
+                            },
+                            stroke: strokeColor,
+                            'stroke-width': strokeSize
                         });
 
                     if (!hideLabels) {
-                        newGroups.append("text")
-                            .attr("transform", function (d) {
-                                return "translate(" + arc.centroid(d) + ")";
+                        newSectors.append("text")
+                            .attr({
+                                transform: function (d) {
+                                    return "translate(" + arc.centroid(d) + ")";
+                                },
+                                "text-anchor": "middle"
                             })
-                            .attr("text-anchor", "middle")
                             .style('fill', fontColor)
                             .text(function (d, i) {
                                 if (labelFactory && typeof labelFactory === 'function') {
@@ -108,13 +108,14 @@ APP.directive('pieChart', function () {
                                 }
                             });
                     }
+
                 };
 
             if (fontSize) {
                 svg.style({
                     'font-size': fontSize
                 })
-            };
+            }
 
             $scope.$watchCollection('data', function (d) {
                 update(d);

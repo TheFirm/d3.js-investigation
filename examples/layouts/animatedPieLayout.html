@@ -24,7 +24,7 @@
 
     var width = 600,
             height = 600,
-            dataset = [10, 20, 40, 21, 40, 60],
+            dataset = [10, 20, 40],
             pieLayout = d3.layout.pie(),
             color = d3.scale.category20(),
             svg = d3.select('svg')
@@ -33,8 +33,8 @@
                         height: height
                     }),
             arc = d3.svg.arc()
-                    .innerRadius(200)
-                    .outerRadius(width/2),
+                    .innerRadius(50)
+                    .outerRadius(width/8),
             arcs = svg.selectAll('g')
                     .data(pieLayout(dataset))
                     .enter()
@@ -63,7 +63,7 @@
 
                 sectors.select('path')
                         .transition()
-                        .duration(3000)
+                        .duration(500)
                         .attr({
                             d: arc,
                             fill: function(d, i) {
@@ -74,9 +74,9 @@
 
     svg.on('click', function() {
         for(var i= 0, max=dataset.length; i< max; i++) {
-            dataset[i] += Math.round(Math.random() * 100);
+            dataset[i] = Math.round(Math.random() * 100);
         }
-        dataset.push(Math.round(Math.random() * 100));
+        //push(Math.round(Math.random() * 100));
         update()
     });
 

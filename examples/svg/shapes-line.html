@@ -26,7 +26,7 @@
 
     var dataset = [],
             datasetSize = 10,
-            width = 600,
+            width = 700,
             height = 400,
             margin = 20,
 
@@ -155,6 +155,19 @@
             })
             .on('click', function(){
                 line.interpolate('step');
+                path.datum(dataset)
+                        .transition()
+                        .duration(1000)
+                        .attr('d', line);
+            });
+
+    d3.select('body').append('input')
+            .attr({
+                type: 'button',
+                value: 'monotone interpolation'
+            })
+            .on('click', function(){
+                line.interpolate('monotone');
                 path.datum(dataset)
                         .transition()
                         .duration(1000)

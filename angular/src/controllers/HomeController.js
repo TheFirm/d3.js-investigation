@@ -1,11 +1,11 @@
 
 APP.controller('HomeController', [ '$scope', '$location', 'FakeData', function($scope, $location, fakeDataFactory) {
-    $scope.keys = ['One', 'Two', 'Three', 'Four'];
+    $scope.keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-    $scope.somedata = fakeDataFactory.generate({size: 3});
+    $scope.somedata = fakeDataFactory.generate({size: 10});
 
     $scope.addData = function() {
-        $scope.somedata = fakeDataFactory.generate({size: $scope.somedata.length+1});
+        $scope.somedata = fakeDataFactory.generate({size: Math.round(4 + Math.random() * 7)});
         console.log('HomeController: new data' + $scope.somedata);
     }
 

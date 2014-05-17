@@ -1,10 +1,14 @@
+    <p>4 pieChart directives bound to same data array</p>
+    <!--
+        TODO: maybe invoke directive on <svg> instead of <div> ?
+    -->
+    <div style="display:inline" width="250" height="250" class="pieChart" data="somedata" inner-radius="50"  duration="1000" ></div>
 
-    <div style="display:inline" width="250" height="250" class="pieChart" data-data="somedata" data-inner-radius="50"  data-duration="1000" ></div>
+    <div style="display:inline" width="250" height="250" class="pieChart" data="somedata" font-color="white" stroke-size="2" stroke-color="gray" inner-radius="60" duration="1200" ></div>
 
-    <div style="display:inline" width="250" height="250" font-color="white" class="pieChart" data-data="somedata" data-duration="1200" ></div>
+    <div style="display:inline" width="250" height="250" class="pieChart" data="somedata" label-factory="lFact(value,index)"  duration="1500" ></div>
 
-    <div width="250" height="250" class="pieChart" data-data="somedata" label-factory="lFact(value,index)"  data-duration="1500" ></div>
-
+    <div style="display:inline" width="250" height="250" class="pieChart" data="somedata"></div>
 
     <br>
     <input type="button" value="Add" ng-click="addData()">
