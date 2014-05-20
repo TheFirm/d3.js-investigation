@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>circles</title>
+    <script src="d3.js"></script>
+    <script>
+        var canvas;
+
+        function init(){
+            var mainDiv = document.createElement('div'),
+                angle, isVisible, time = 2000;
+
+            mainDiv.id = 'canvas';
+            document.body.appendChild(mainDiv);
+
+            canvas = d3.select("#canvas").append("svg")
+                        .attr("width", 600).attr("height", 600);
+
+            createBalls();
+            colorScale();
+            angle = 1;
+            isVisible = false;
+
+            setInterval(function(){
+                var newX, newY;
+
+                switch (angle){
+                    case 0:
+                        newX = newY = 0;
+                        break;
+                    case 1:
+                        newX = 500; newY = 0;
+                        break;
+                    case 2:
+                        newX = newY = 500;
+                        break;
+                    case 3: newX = 0; newY = 500;
+                        break;
+                    default:
+                        alert('wtf');
+                }
+
+
+                if(isVisible) {
+                    canvas.selectAll('circle')
+                            .transition().duration(time).delay(function(d, i) { return 2*i; })
+                            .attr("r", 0)
+                            .attr('cx', newX)
+                            .attr('cy', newY);
+
+                    angle = (angle + 1) % 4;
+                }else{
+                    canvas.selectAll('circle')
+                            .transition().duration(time).delay(function(d, i) { return 2*i; })
+                            .attr("r", 20)
+                            .attr('cx', function(d) { return d.x; })
+                            .attr('cy', function(d) { return d.y; });
+                }
+                isVisible = !isVisible;
+            }, time);
+        }
+
+        function createBalls(){
+            var data = [];
+
+            for(var i = 0; i < 10; i++){
+                for(var j = 0; j < 10; j++){
+                    data[i*10 + j] = {
+                        x: j*50 + 25,
+                        y: i*50 + 25
+                    };
+                }
+            }
+
+            canvas.selectAll('circle').data(data)
+                    .enter()
+                        .append('circle')
+                        .attr('cx', 0)
+                        .attr('cy', 0)
+                        .attr('r', 0);
+        }
+
+        function colorScale(){
+            var scale = d3.scale.linear().domain([0, 1000]).range(['white', 'black']);
+            canvas.selectAll('circle').attr('fill', function(d) { return scale(d.x + d.y); });
+        }
+    </script>
+</head>
+<body onload="init();">
+
+</body>
+</html>

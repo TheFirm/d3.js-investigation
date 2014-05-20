@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>brush</title>
+    <style>
+        body{
+            text-align: center;
+        }
+        svg{
+            border: 2px black solid;
+        }
+        .extent{
+            fill: rgba(100, 100, 100, 0.2);
+            stroke: black;
+            stroke-width: 5;
+        }
+        .point{
+            fill: red;
+        }
+        .selected{
+            fill: red;
+            stroke: black;
+            stroke-width: 4;
+        }
+    </style>
+    <script src="d3.js"></script>
+    <script>
+        var svg, brush,
+            xScale, yScale,
+            data = [];
+
+        function init(){
+            var svgDiv = document.createElement('div'), i;
+
+            svgDiv.id = 'svg';
+            document.body.appendChild(svgDiv);
+
+            svg = d3.select("#svg").append("svg")
+                    .attr("width", 800)
+                    .attr("height", 500);
+
+            xScale = d3.scale.linear().domain([0, 10]).range([0, 800]);
+            yScale = d3.scale.linear().domain([0, 10]).range([500, 0]);
+
+            brush = d3.svg.brush().x(xScale).y(yScale)
+                    .on('brush', brushed);
+
+            for(i = 0; i < 100; i++){
+                data[i] = {
+                    x: parseInt(1 + Math.random()*9),
+                    y: parseInt(1 + Math.random()*9)
+                };
+            }
+
+            svg.selectAll('circle').data(data)
+                    .enter()
+                    .append('circle')
+                    .transition().duration(1000)
+                    .attr('class', 'point')
+                    .attr('cx', function (d) { return xScale(d.x); })
+                    .attr('cy', function (d) { return yScale(d.y); })
+                    .attr('r', 4);
+
+            svg.append('g').call(brush);
+
+
+
+
+
+            //---------------time test---------------------------------------------
+            console.log(d3.time.day.range(d3.time.month(new Date()), new Date()));
+            console.log(d3.time.day.utc.range(d3.time.month(new Date()), new Date()));
+        }
+
+        function brushed(){
+            var extent = brush.extent();
+
+            svg.selectAll('circle')
+                    .attr('class', 'point')
+                    .attr('r', 4);
+
+            svg.selectAll('circle')
+                    .filter(function( d ){
+                        if(d.x >= extent[0][0] && d.x <= extent[1][0]
+                            && d.y >= extent[0][1] && d.y <= extent[1][1]){
+                                return true;
+                        }else{
+                            return false;
+                        }
+                    })
+                    .attr('class', 'selected')
+                    .attr('r', 8);
+        }
+    </script>
+</head>
+<body onload="init();">
+
+</body>
+</html>
