@@ -28,6 +28,7 @@ APP.directive('pieChart', function () {
                 strokeSize = $attributes.strokeSize || '0',
                 strokeColor = $attributes.strokeColor || 'black',
                 labelFactory = ($attributes.labelFactory && $scope.lF) || null,
+                denySorting = $attributes.denySorting || false,
 
                 svg = d3.select($element[0])
                     .append('svg')
@@ -115,6 +116,10 @@ APP.directive('pieChart', function () {
                 svg.style({
                     'font-size': fontSize
                 })
+            }
+
+            if (denySorting) {
+                pieLayout.sort(null);
             }
 
             $scope.$watchCollection('data', function (d) {

@@ -10,5 +10,9 @@ var APP = angular.module('test_d3', ['ngRoute'])
                 templateUrl: 'src/partials/pieChart.html',
                 controller: 'HomeController'
             })
+            .when('/revenue', {
+                templateUrl: 'src/partials/revenue.html',
+                controller: 'HomeController'
+            })
 
     }])
