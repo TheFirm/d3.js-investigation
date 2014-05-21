@@ -25,7 +25,7 @@ APP.directive('huRevenue', function () {
                         opacity: 0.5
                     })
                     .transition()
-                    .duration(5000)
+                    .duration(8000)
                     .attr({
                         r: size / 2
                     }),
@@ -41,9 +41,9 @@ APP.directive('huRevenue', function () {
                         opacity: 0.5
                     })
                     .transition()
-                    .duration(5000)
+                    .duration(12000)
                     .attr({
-                        r: size / 2 - 30
+                        r: size / 4
                     }),
 
                 logo = svg.append('image')

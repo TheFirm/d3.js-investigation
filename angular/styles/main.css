@@ -5,12 +5,9 @@ body {
     width: 600px;
     margin: 10px auto;
     padding: 20px;
-    background-color: #eeeaea;
 }
 
 .content {
-    border-width: 1px;
-    border-style: solid;
     padding: 10px;
     margin: 10px 0px;
     min-height: 400px;
