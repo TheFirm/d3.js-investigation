@@ -1,115 +1,151 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="test_d3">
 <head>
-    <title>revenue/profit Widget</title>
-    <meta charset="utf-8">
+    <title>Profit/Revenue Demo</title>
+    <meta charset="utf-8" lang="ua">
+    <link href='styles/main.css' rel="stylesheet" type="text/css"/>
 </head>
+
 <body>
 
-<script src="src/d3.js"></script>
+
+<div style="position:absolute;left:200px;top:150px;" class="hu-revenue" size="200"
+     logo="http://www.datadynamics-inc.com/files/Image/HP_Black_RGB_150_LG.png">
+</div>
+
+<div style="position:absolute;left:450px;top:100px;" class="hu-revenue" size="300" fill="lime"
+     logo="http://libreriayussim.com/images/android_logo.png">
+</div>
+
+<div style="position:absolute;left:800px;top:150px;" class="hu-revenue" size="200" fill="blue"
+     logo="http://marketingland.com/wp-content/ml-loads/2013/04/google-g-logo-2012.png">
+</div>
+
+<div style="position:absolute;left:650px;top:300px;" class="hu-revenue" size="300" fill="orange"
+     logo="http://design.ubuntu.com/wp-content/uploads/logo-ubuntu_cof-orange-hex.png">
+</div>
+
+<div style="position:absolute;left:350px;top:350px;" class="hu-revenue" size="200" fill="indigo"
+     logo="http://www.iconsdb.com/icons/preview/indigo/steam-xxl.png">
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-    var width = 400,
-            height = 400,
-            money = 1200,
-            svg = d3.select('body')
-                    .append('svg')
-                    .attr({
-                        width: width,
-                        height: height
-                    }),
-            revenueCircle = svg.append('circle')
-                    .attr({
-                        cx: width / 2,
-                        cy: height / 2,
-                        r: 100,
-                        fill: 'red'
-                    })
-                    .style({
-                        opacity: 0.5
-                    })
-                    .transition()
-                    .duration(5000)
-                    .attr({
-                        r: 200
-                    }),
+    angular.module('test_d3', [])
+            .directive('huRevenue', function () {
+                return {
+                    restrict: 'EAC',
 
-            profitCircle = svg.append('circle')
-                    .attr({
-                        cx: width / 2,
-                        cy: height / 2,
-                        r: 80,
-                        fill: 'red'
-                    })
-                    .style({
-                        opacity: 0.5
-                    })
-                    .transition()
-                    .duration(5000)
-                    .attr({
-                        r: 120
-                    }),
+                    link: function ($scope, $element, $attributes) {
 
-            logo = svg.append('image')
-                    .attr({
-                        'xlink:href': '/images/profrevlogo.png',
-                        x: width / 2 - 40,
-                        y: height / 2 - 40,
-                        width: '80px',
-                        height: '80px'
-                    }),
+                        var size = $attributes.size || 400,
+                                money = 1200,
+                                circleColor = $attributes.fill || 'black',
+                                logoUrl = $attributes.logo,
+                                svg = d3.select($element[0])
+                                        .append('svg')
+                                        .attr({
+                                            width: size >= 185 ? size : 185, // 185x185 -  min bounding box for labels
+                                            height: size >= 185 ? size : 185
+                                        }),
+                                revenueCircle = svg.append('circle')
+                                        .attr({
+                                            cx: size / 2,
+                                            cy: size / 2,
+                                            r: 20,
+                                            fill: circleColor
+                                        })
+                                        .style({
+                                            opacity: 0.5
+                                        })
+                                        .transition()
+                                        .duration(8000)
+                                        .attr({
+                                            r: size / 2
+                                        }),
 
-            profitTextBox = svg.append('rect')
-                    .attr({
-                        x: width / 2 - 70,
-                        y: height / 2 + 50,
-                        width: 140,
-                        height: 25,
-                        fill: 'gray'
-                    }),
+                                profitCircle = svg.append('circle')
+                                        .attr({
+                                            cx: size / 2,
+                                            cy: size / 2,
+                                            r: 10,
+                                            fill: circleColor
+                                        })
+                                        .style({
+                                            opacity: 0.5
+                                        })
+                                        .transition()
+                                        .duration(12000)
+                                        .attr({
+                                            r: size / 4
+                                        }),
 
-            revenueTextBox = svg.append('rect')
-                    .attr({
-                        x: width / 2 - 70,
-                        y: height / 2 + 77,
-                        width: 140,
-                        height: 25,
-                        fill: 'ivory'
-                    }),
+                                logo = svg.append('image')
+                                        .attr({
+                                            'xlink:href': logoUrl,
+                                            x: size / 2 - 30,
+                                            y: size / 2 - 60,
+                                            width: '60px',
+                                            height: '60px'
+                                        }),
 
-            profitText = svg.append('text')
-                    .attr({
-                        x: width / 2,
-                        y: height / 2 + 68,
-                        fill: 'white'
-                    })
-                    .style({
-                        'text-anchor': 'middle'
-                    })
-                    .text('Profit: ' + money + '$'),
+                                profitTextBox = svg.append('rect')
+                                        .attr({
+                                            x: size / 2 - 70,
+                                            y: size / 2 + 10,
+                                            width: 140,
+                                            height: 25,
+                                            fill: 'gray'
+                                        }),
 
-            revenueText = svg.append('text')
-                    .attr({
-                        x: width / 2,
-                        y: height / 2 + 95,
-                        fill: 'black'
-                    })
-                    .style({
-                        'text-anchor': 'middle'
-                    })
-                    .text('Revenue: ' + money + '$'),
+                                revenueTextBox = svg.append('rect')
+                                        .attr({
+                                            x: size / 2 - 70,
+                                            y: size / 2 + 37,
+                                            width: 140,
+                                            height: 25,
+                                            fill: 'ivory'
+                                        }),
 
-            timer;
+                                profitText = svg.append('text')
+                                        .attr({
+                                            x: size / 2,
+                                            y: size / 2 + 28,
+                                            fill: 'white'
+                                        })
+                                        .style({
+                                            'text-anchor': 'middle'
+                                        })
+                                        .text('Profit: ' + money + '$'),
 
-    timer = setInterval(function () {
-        money += 17;
-        revenueText.text('Revenue: ' + ( money * 17 ) + '$');
-        profitText.text('Profit: ' + money + '$');
-        if (money > 10000) {
-            clearInterval(timer);
-        }
+                                revenueText = svg.append('text')
+                                        .attr({
+                                            x: size / 2,
+                                            y: size / 2 + 55,
+                                            fill: 'black'
+                                        })
+                                        .style({
+                                            'text-anchor': 'middle'
+                                        })
+                                        .text('Revenue: ' + money + '$'),
 
-    }, 30);
+                                timer;
 
+                        timer = setInterval(function () {
+                            money += 17;
+                            revenueText.text('Revenue: ' + ( money * 17 ) + '$');
+                            profitText.text('Profit: ' + money + '$');
+                            if (money > 10000) {
+                                clearInterval(timer);
+                            }
+
+                        }, 30);
+
+                    }
+                }
+            });
 </script>
 </body>
 </html>
