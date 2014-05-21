@@ -1,32 +1,25 @@
 APP.directive('huRevenue', function () {
     return {
         restrict: 'EAC',
-        scope: {
-            profit: '=',
-            revenue: '='
-        },
-        template: '<svg></svg>',
-        replace: true,
 
         link: function ($scope, $element, $attributes) {
 
-            if (!$scope.profit && !$scope.revenue) {
-                return;
-            }
-
-            var width = 400,
-                height = 400,
+            var size = $attributes.size || 400,
+                money = 1200,
+                circleColor = $attributes.fill || 'black',
+                logoUrl = $attributes.logo,
                 svg = d3.select($element[0])
+                    .append('svg')
                     .attr({
-                        width: width,
-                        height: height
+                        width: size >= 185 ? size : 185, // 185x185 -  min bounding box for labels
+                        height: size >= 185 ? size : 185
                     }),
                 revenueCircle = svg.append('circle')
                     .attr({
-                        cx: width / 2,
-                        cy: height / 2,
-                        r: 100,
-                        fill: 'red'
+                        cx: size / 2,
+                        cy: size / 2,
+                        r: 20,
+                        fill: circleColor
                     })
                     .style({
                         opacity: 0.5
@@ -34,15 +27,15 @@ APP.directive('huRevenue', function () {
                     .transition()
                     .duration(5000)
                     .attr({
-                        r: 200
+                        r: size / 2
                     }),
 
                 profitCircle = svg.append('circle')
                     .attr({
-                        cx: width / 2,
-                        cy: height / 2,
-                        r: 80,
-                        fill: 'red'
+                        cx: size / 2,
+                        cy: size / 2,
+                        r: 10,
+                        fill: circleColor
                     })
                     .style({
                         opacity: 0.5
@@ -50,22 +43,22 @@ APP.directive('huRevenue', function () {
                     .transition()
                     .duration(5000)
                     .attr({
-                        r: 120
+                        r: size / 2 - 30
                     }),
 
                 logo = svg.append('image')
                     .attr({
-                        'xlink:href': '/images/profrevlogo.png',
-                        x: width / 2 - 40,
-                        y: height / 2 - 40,
-                        width: '80px',
-                        height: '80px'
+                        'xlink:href': logoUrl,
+                        x: size / 2 - 30,
+                        y: size / 2 - 60,
+                        width: '60px',
+                        height: '60px'
                     }),
 
                 profitTextBox = svg.append('rect')
                     .attr({
-                        x: width / 2 - 70,
-                        y: height / 2 + 50,
+                        x: size / 2 - 70,
+                        y: size / 2 + 10,
                         width: 140,
                         height: 25,
                         fill: 'gray'
@@ -73,8 +66,8 @@ APP.directive('huRevenue', function () {
 
                 revenueTextBox = svg.append('rect')
                     .attr({
-                        x: width / 2 - 70,
-                        y: height / 2 + 77,
+                        x: size / 2 - 70,
+                        y: size / 2 + 37,
                         width: 140,
                         height: 25,
                         fill: 'ivory'
@@ -82,25 +75,38 @@ APP.directive('huRevenue', function () {
 
                 profitText = svg.append('text')
                     .attr({
-                        x: width / 2,
-                        y: height / 2 + 68,
+                        x: size / 2,
+                        y: size / 2 + 28,
                         fill: 'white'
                     })
                     .style({
-                        'text-anchor': 'middle',
+                        'text-anchor': 'middle'
                     })
-                    .text('Profit: 100500$'),
+                    .text('Profit: ' + money + '$'),
 
                 revenueText = svg.append('text')
                     .attr({
-                        x: width / 2,
-                        y: height / 2 + 95,
+                        x: size / 2,
+                        y: size / 2 + 55,
                         fill: 'black'
                     })
                     .style({
-                        'text-anchor': 'middle',
+                        'text-anchor': 'middle'
                     })
-                    .text('Revenue: 100500$')
+                    .text('Revenue: ' + money + '$'),
+
+                timer;
+
+            timer = setInterval(function () {
+                money += 17;
+                revenueText.text('Revenue: ' + ( money * 17 ) + '$');
+                profitText.text('Profit: ' + money + '$');
+                if (money > 10000) {
+                    clearInterval(timer);
+                }
+
+            }, 30);
+
         }
     }
 });
