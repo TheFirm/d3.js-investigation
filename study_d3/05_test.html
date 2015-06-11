@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-    <div id="container"></div>
+    <div id="svg_container"></div>
 
 <script>
     var APP = (function(){
@@ -223,7 +223,7 @@
 
 
         function init(){
-            app.svg = d3.select('#container')
+            app.svg = d3.select('#svg_container')
                     .append("svg")
                     .attr("width", width)
                     .attr("height", height)
@@ -263,16 +263,16 @@
                     { month: "february", value: 160},
                     { month: "march", value: 400},
                     { month: "april", value: 80},
-                    { month: "may", value: 260},
+                    { month: "may", value: 267},
                     { month: "june", value: 300}
                 ],
                 dummyData2: [
-                    { month: "july", value: 300},
-                    { month: "august", value: 300},
+                    { month: "july", value: 220},
+                    { month: "august", value: 220},
                     { month: "september", value: 100},
-                    { month: "october", value: 150},
-                    { month: "november", value: 380},
-                    { month: "december", value: 120}
+                    { month: "october", value: 200},
+                    { month: "november", value: 412},
+                    { month: "december", value: 300}
                 ]
             });
 
