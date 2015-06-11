@@ -21,6 +21,7 @@
         var app = {};
         var width = window.innerWidth;
         var height = 600;
+        var aspect = width / height;
 
         var count = 6;
 
@@ -73,6 +74,7 @@
              * options.color
              * options.class
              * options.lineOffset
+             * options.type
              * options.dummyData1
              * options.dummyData2
              */
@@ -80,6 +82,7 @@
             this.color = options.color;
             this.class = options.class;
             this.lineOffset = options.lineOffset;
+            this.type = options.type;
             this.dummyData1 = options.dummyData1;
             this.dummyData2 = options.dummyData2;
             this.layer = app.mainLayer.append('g');
@@ -171,9 +174,9 @@
                         .attr('x', xScale(index) + textOffsetX)
                         .attr('y', yScale(currentLabelObject.value + self.lineOffset - textOffsetY))
                         .attr('class', 'label-text')
-                        .text( function (d) { return currentLabelObject.value + ".000$"; })
+                        .text( function (d) { return currentLabelObject.value + ".000 £"; })
                         .attr("font-size", "0px")
-                        .attr("font-family", "Verdana")
+                        .attr("font-family", "Helvetica")
                         .attr("font-weight", "bold")
                         .attr("fill", "#303A4B")
                         .transition()
@@ -183,9 +186,9 @@
                         .attr('x', xScale(index) + textOffsetX)
                         .attr('y', yScale(currentLabelObject.value + self.lineOffset - 3*textOffsetY))
                         .attr('class', 'label-text')
-                        .text( function (d) { return "We saved in " + currentLabelObject.month; })
+                        .text( function (d) { return "We saved on " + self.type; })
                         .attr("font-size", "0px")
-                        .attr("font-family", "Verdana")
+                        .attr("font-family", "Helvetica")
                         .attr("fill", "#BFC0C8")
                         .transition()
                         .duration(300)
@@ -195,8 +198,8 @@
 
         Graph.prototype.hideLabel = function(){
             var self = this;
-            self.layer.select('path.label-line').remove();
-            self.layer.select('circle.label-circle').remove();
+            self.layer.selectAll('path.label-line').remove();
+            self.layer.selectAll('circle.label-circle').remove();
             self.layer.selectAll('text.label-text').remove();
         };
 
@@ -204,13 +207,14 @@
         //-------EVENT LISTENERS----
         //--------------------------
 
-//        d3.select(window).on('resize', onResize);
-//
-//        function onResize(){
-//            width = window.innerWidth;
-//
-//            xScale.range([0, width]);
-//        }
+        d3.select(window).on('resize', onResize);
+
+        function onResize(){
+            width = window.innerWidth;
+            app.svg
+                    .attr("width", width)
+                    .attr("height", width/aspect);
+        }
 
         //--------------------------------
         //--------------------------------
@@ -221,13 +225,17 @@
         function init(){
             app.svg = d3.select('#container')
                     .append("svg")
-                    .attr("width", width).attr("height", height);
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("viewBox", "0 0 " + width + " " + height)
+                    .attr("preserveAspectRatio", "xMidYMid");
 
             app.mainLayer = app.svg.append('g');
             app.graph1 = new Graph({
                 class: 'path1',
                 color: '#009733',
                 lineOffset: 50,
+                type: "Electric",
                 dummyData1: [
                     { month: "january", value: 120},
                     { month: "february", value: 300},
@@ -249,6 +257,7 @@
                 class: 'path2',
                 color: '#00C249',
                 lineOffset: 150,
+                type: "Gas",
                 dummyData1: [
                     { month: "january", value: 60},
                     { month: "february", value: 160},
